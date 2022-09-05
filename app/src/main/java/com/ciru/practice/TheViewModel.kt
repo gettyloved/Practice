@@ -2,26 +2,75 @@ package com.ciru.practice
 
 
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
 class  TheViewModel : ViewModel(){
 //    state
-//    var count  by mutableStateOf(0)
-    var name  = MutableStateFlow("")
-    var email  = MutableStateFlow("")
+     var _email by mutableStateOf("")
+     var _username by mutableStateOf("")
+     var _password by mutableStateOf("")
 
-//    connect
-    val _name:StateFlow<String>
-    get() = name
+     private val _stateProject = MutableStateFlow<StateProject>(Empty)
+     private val _UserName = MutableStateFlow<String>("")
+     private val _Email = MutableStateFlow<String>("")
 
-    val _email:StateFlow<String>
-    get() = email
+     val stateProject : StateFlow<StateProject> get() = _stateProject
+     val UserName : StateFlow<String> get() = _UserName
+     val Email : StateFlow<String> get() = _Email
 
-//    event
-    fun setName(newString: String){ name.value = newString }
-    fun setEmail(newString: String){email.value = newString}
+     fun setCapturedEmail(email:String){
+         _Email.value = email
+     }
+     fun setCapturedUserName(userName:String){
+         _UserName.value = userName
+     }
+
+     fun login(email:String, userName: String) = viewModelScope.launch {
+      _stateProject.value = Loading
+      if(email.isNotBlank() &&
+       userName.isNotBlank() &&
+       _password.contentEquals("food")) _stateProject.value = Success(email = email, username = userName)
+      else _stateProject.value = Error(errorMessage = "Wrong Credentials")
+     }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -50,4 +99,4 @@ class  TheViewModel : ViewModel(){
 //    fun ScreenA(sharedViewModel:ViewModel){
 //        sharedViewModel.setData("data")
 //    }
-}
+//}
