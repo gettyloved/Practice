@@ -12,16 +12,20 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class  TheViewModel : ViewModel(){
-//    state
-     var _email by mutableStateOf("")
-     var _username by mutableStateOf("")
-     var _password by mutableStateOf("")
+//     not necessary
+//      var _email by mutableStateOf("")
+//      var _username by mutableStateOf("")
+//      var _password by mutableStateOf("")
 
      private val _stateProject = MutableStateFlow<StateProject>(Empty)
      private val _UserName = MutableStateFlow<String>("")
      private val _Email = MutableStateFlow<String>("")
-
+     // expose non editable state to be observed in composables
      val stateProject : StateFlow<StateProject> get() = _stateProject
+     // this is what you will use to get current username and email in screenB or whatever screen you want to fetch/view the username and email just do
+     // val username by viewModel.UserName.collectAsState(initial="")
+     // val email by viewModel.Email.collectAsState(initial="")
+     // do something with the username and email maybe log them or display them that is upto you.
      val UserName : StateFlow<String> get() = _UserName
      val Email : StateFlow<String> get() = _Email
 
@@ -31,14 +35,30 @@ class  TheViewModel : ViewModel(){
      fun setCapturedUserName(userName:String){
          _UserName.value = userName
      }
-
-     fun login(email:String, userName: String) = viewModelScope.launch {
+    
+     // so just do
+     fun login()=viewModelScope.launch{
       _stateProject.value = Loading
-      if(email.isNotBlank() &&
-       userName.isNotBlank() &&
-       _password.contentEquals("food")) _stateProject.value = Success(email = email, username = userName)
-      else _stateProject.value = Error(errorMessage = "Wrong Credentials")
+      // instead of _Email.value you can collect the flow in this coroutine scope eg _Email.collect{email-> } etc.   
+      var email:String = _Email.value
+      var username:String=_Username.value
+       
+      if(email.isNotBlank() && username.isNotBlank()
+     && username.contentEquals("food") && email.contentEquals("password"){
+        _stateProject.value = Success(email,username)
+      }else{
+       _stateProject.value = Error(errorMessage="wrong credentials;try again.") 
+      }
      }
+     
+ // not necessary since you are internally setting the values inputted by the user via _Email and _Username implement login logic as shown above.
+//      fun login(email:String, userName: String) = viewModelScope.launch {
+//       _stateProject.value = Loading
+//       if(email.isNotBlank() &&
+//        userName.isNotBlank() &&
+//        _password.contentEquals("food")) _stateProject.value = Success(email = email, username = userName)
+//       else _stateProject.value = Error(errorMessage = "Wrong Credentials")
+//      }
 
 }
 
