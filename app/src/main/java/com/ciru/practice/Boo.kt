@@ -20,14 +20,17 @@ import androidx.navigation.NavController
 @Composable
 fun Boo(theViewModel: TheViewModel,navController: NavController){
         val stateProject by theViewModel.stateProject.collectAsState()
+        var email by mutableStateOf("")
+        var username by mutableStateOf("")
+        var statusChange by mutableStateOf("Post something ") // start with an empty status also wrap it in remember{} if you want the value held by the variable to survive configuration change
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         TextField(
-            value = theViewModel._email,
-            onValueChange = { theViewModel._email = it },
+            value = email//theViewModel._email,
+            onValueChange = { email = it },
             label = {
                 Text(text = "Email")
             },
@@ -35,8 +38,8 @@ fun Boo(theViewModel: TheViewModel,navController: NavController){
         )
 
         TextField(
-            value = theViewModel._username,
-            onValueChange = { theViewModel._username = it },
+            value = username//theViewModel._username,
+            onValueChange = { username = it },
             label = {
                 Text(text = "UserName")
             },
@@ -54,19 +57,35 @@ fun Boo(theViewModel: TheViewModel,navController: NavController){
 
         Button(
             onClick = {
-                theViewModel.setCapturedEmail(theViewModel._email)
-                theViewModel.setCapturedEmail(theViewModel._username)
-                theViewModel.login(email = theViewModel._email, userName = theViewModel._username)
-                navController.navigate(route = MainContent.Bae.route)
+                // theViewModel.setCapturedEmail(theViewModel._email)
+               //  theViewModel.setCapturedEmail(theViewModel._username)
+                passDataToViewModel(theViewModel, email, username)
+                theViewModel.login()
+                statusChange = updateState(stateProject)
+                // I don't think this is relevant 
+                //theViewModel.login(email = theViewModel._email, userName = theViewModel._username)
+                navigateToMainScreen(navController)
+               // navController.navigate(route = MainContent.Bae.route)
             }) {
-            when(val p = stateProject){
-                is Loading->"loading"
-                is Error->p.errorMessage
-                is Success->p.email
-                is Success -> p.username
-                else-> "Post Something"
-            }
-            Text(text = "Post")
+               
+//             when(val p = stateProject){
+//                 is Loading->"loading"
+//                 is Error->p.errorMessage
+//                 is Success->p.email
+//                 is Success -> p.username
+//                 else-> "Post Something"
+//             }
+            Text(text = statusChange)
         }
     }
+}
+private fun updateState(stateProject:LoginState)=when(stateProject){
+ is Loading->"loading message"
+ is Error->stateProject.errorMessage
+ is Success->"${stateProject.email}, ${stateProject.username}    
+}
+private fun navigateToMainScreen(navController) = navController.navigate(route=MainContent.Bae.route)
+private fun passDataToViewModel(viewModel:ViewModel,email:String,username:String){
+    viewModel.setCapturedEmail(email)
+    viewModel.setCapturedUserName(username)
 }
